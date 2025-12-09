@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}My Favorite Tickets{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h1 class="mb-4">My Favorite Tickets</h1>
+
+  {% if tickets %}
+    {% for t in tickets %}
+      <div class="card mb-3 shadow rounded-3 py-3 px-3">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <img src="{{ t.image_url }}" class="img-fluid rounded-3" alt="Event image">
+          </div>
+          <div class="col-md-6">
+            <h3 class="mb-md-1 my-1">{{ t.name }}</h3>
+            <p class="mb-0 text-muted">{{ t.venue }}</p>
+            <p class="mb-0 text-muted">{{ t.city }}, {{ t.state }}</p>
+            <p class="mb-0 fw-semibold">{{ t.date }} • {{ t.time }}</p>
+
+            <form method="post" action="{% url 'edit_favorite' t.id %}" class="edit-favorite-ajax mt-3">
+              {% csrf_token %}
+              <label for="notes-{{ t.id }}" class="form-label fw-semibold">Notes</label>
+              <textarea id="notes-{{ t.id }}" name="user_notes" rows="2" class="form-control mb-2">{{ t.user_notes }}</textarea>
+              <button class="btn btn-outline-primary btn-md" type="submit">Save Notes</button>
+            </form>
+          </div>
+
+          <div class="col-md-3 text-end">
+            <span class="text-danger fs-3 d-block mb-2">
+              <i class="bi bi-heart-fill"></i>
+            </span>
+            <a href="{{ t.ticket_url }}" class="btn btn-outline-primary btn-md mb-2">
+              <i class="bi bi-ticket-detailed"></i> Find Tickets
+            </a>
+
+            <form method="post" action="{% url 'remove_favorite' %}" class="remove-favorite-ajax">
+              {% csrf_token %}
+              <input type="hidden" name="ticket_url" value="{{ t.ticket_url }}">
+              <input type="hidden" name="searched_genre" value="">
+              <input type="hidden" name="searched_city" value="">
+              <button class="btn btn-outline-danger btn-md" type="submit">
+                <i class="bi bi-trash"></i> Remove
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>You have no favorite tickets yet. Make sure to save some!</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    // AJAX CRUD Delete
+    $(".remove-favorite-ajax").submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response["removed"]) {
+                    location.reload();
+                }
+            },
+            error: function() {
+                alert("Error removing favorite.");
+            }
+        });
+    });
+
+    // AJAX CRUD Update
+    $(".edit-favorite-ajax").submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response["updated"]) {
+                    alert("Notes successfully updated!");
+                }
+            },
+            error: function() {
+                alert("Error saving notes.");
+            }
+        });
+    });
+  </script>
+{% endblock %}

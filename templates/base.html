@@ -1,0 +1,70 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Ticketmaster API Project{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/dark-mode.css' %}">
+</head>
+<body id="page-body" class="bg-light">
+  <nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3 sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="https://www.ticketmaster.com">Powered by Ticketmaster</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/' or request.path == '/search/' %}active{% endif %}" href="{% url 'home' %}">Browse Tickets</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/favorites/' %}active{% endif %}" href="{% url 'favorites_list' %}">My Favorites</a>
+        </li>
+      </ul>
+      <button id="dark-mode-toggle" class="btn btn-outline-secondary">Dark Mode</button>
+    </div>
+  </div>
+</nav>
+
+  {% block content %}
+  {% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script>
+      $(document).ready(function() {
+          const body = $('body')
+          const toggleButton = $('#dark-mode-toggle')
+          const navbar = $('#navbar')
+
+          if (localStorage.getItem("dark-mode") === "true") {
+              body.addClass("dark-mode");
+
+              navbar.removeClass("navbar-light bg-white").addClass("navbar-dark bg-dark")
+              toggleButton.text("Light Mode");
+          }
+
+          toggleButton.on("click", function() {
+              body.toggleClass("dark-mode");
+
+              const isDark = body.hasClass("dark-mode");
+              localStorage.setItem("dark-mode", `${isDark}`);
+
+              toggleButton.text(isDark ? "Light Mode" : "Dark Mode");
+
+              if (isDark) {
+                  navbar.removeClass("navbar-light bg-white").addClass("navbar-dark bg-dark");
+              } else {
+                  navbar.removeClass("navbar-dark bg-dark").addClass("navbar-light bg-white");
+              }
+          });
+      });
+  </script>
+  {% block script %}
+  {% endblock %}
+</body>
+</html>

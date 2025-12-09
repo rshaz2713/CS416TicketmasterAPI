@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {% if genre and city %}
+    Search results for {{ genre }} in {{ city }}
+  {% else %}
+    Search Ticketmaster Events
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid bg-dark">
+    <div class="container text-center">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 col-md pt-5">
+          <h1 class="text-light display-1">Ticketmaster</h1>
+          <h1 class="fw-bold text-light display-5">Quickly find tickets around you</h1>
+          <form method="get" action="{% url 'search' %}">
+            <div class="input-group mb-3 mt-5">
+              <input name="genre" class="form-control" value="{{ genre }}" list="genre-options" id="genre" placeholder="Type to search by genre" aria-label="Genre">
+              <datalist id="genre-options">
+                <option value="Music">
+                <option value="Sports">
+                <option value="Theater">
+                <option value="Family">
+                <option value="Arts & Theater">
+                <option value="Concerts">
+                <option value="Comedy">
+                <option value="Dance">
+              </datalist>
+              <input name="city" type="text" class="form-control" value="{{ city }}" id="city" placeholder="Enter a city e.g., Hartford" aria-label="City">
+              <button id="search-button" class="btn btn-primary" type="submit">SEARCH</button>
+            </div>
+          </form>
+          {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if event_count %}
+    <div id="query-root-container" class="container my-3">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-md pt-5 px-4 bg-white shadow">
+          <h2 class="text-muted">{{ event_count }} event{% if event_count|add:"0" != 1 %}s{% endif %} found</h2>
+          {% for event in events %}
+            <div class="card mb-3 shadow rounded-3 py-xl-3">
+              <div class="row align-items-center">
+                <div class="col-xl col-12">
+                  <img src="{{ event.image_url }}" class="img-fluid rounded-3" alt="Event image">
+                </div>
+                <div class="col-xl col-6 ps-xl-0 ps-4 py-2">
+                  <h2 class="mb-2">{{ event.name }}</h2>
+                  <h3 class="mb-1 text-secondary fw-normal">
+                    <i class="bi bi-geo-alt-fill"></i> {{ event.venue }}
+                  </h3>
+                  <p class="text-muted mb-0">{{ event.address }}</p>
+                  <p class="text-muted">{{ event.city }}, {{ event.state }}</p>
+                </div>
+                <div class="col-xl col-6 text-end pe-4 py-2 align-self-start">
+
+                  <p class="fw-semibold fs-4 mb-0 text-primary-emphasis">{{ event.date }}</p>
+                  <p class="fw-semibold text-primary-emphasis fs-5 mb-1">{{ event.time }}</p>
+
+                  <div class="d-flex justify-content-end align-items-center">
+                    {% if event.is_saved %}
+                      <span class="text-danger fs-3 d-inline">
+                        <i class="bi bi-heart-fill"></i>
+                      </span>
+                    {% endif %}
+                    <a href="{{ event.ticket_url }}" class="btn btn-outline-primary btn-md ms-2">
+                      <i class="bi bi-ticket-detailed"></i> Find Tickets
+                    </a>
+                  </div>
+
+                  {% if event.is_saved %}
+                    <form method="post" action="{% url 'remove_favorite' %}" class="remove-favorite-ajax mt-2">
+                      {% csrf_token %}
+                      <input type="hidden" name="ticket_url" value="{{ event.ticket_url }}">
+                      <input type="hidden" name="searched_genre" value="{{ genre }}">
+                      <input type="hidden" name="searched_city" value="{{ city }}">
+
+                      <button class="btn btn-outline-danger btn-md" type="submit">
+                        <i class="bi bi-trash"></i> Remove from Favorites
+                      </button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{% url 'save_favorite' %}" class="save-favorite-ajax mt-2">
+                      {% csrf_token %}
+                      <input type="hidden" name="name" value="{{ event.name }}">
+                      <input type="hidden" name="ticket_url" value="{{ event.ticket_url }}">
+                      <input type="hidden" name="image_url" value="{{ event.image_url }}">
+                      <input type="hidden" name="date" value="{{ event.date }}">
+                      <input type="hidden" name="time" value="{{ event.time }}">
+                      <input type="hidden" name="venue" value="{{ event.venue }}">
+                      <input type="hidden" name="city" value="{{ event.city }}">
+                      <input type="hidden" name="state" value="{{ event.state }}">
+                      <input type="hidden" name="searched_genre" value="{{ genre }}">
+                      <input type="hidden" name="searched_city" value="{{ city }}">
+
+                      <button class="btn btn-outline-danger btn-md" type="submit" title="Save to Favorites">
+                        <i class="bi bi-heart"></i> Add to Favorites
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% elif city and genre and not event_count %}
+    <div id="query-root-container" class="container my-3">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-md pt-5 px-4 bg-white shadow">
+          <h5 class="mb-3 pb-3">Sorry... No results were found for the entered search term and city.</h5>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block script %}
+  <script>
+    // AJAX CRUD Create
+    $(".save-favorite-ajax").submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response["saved"]) {
+                    location.reload();
+                }
+            },
+            error: function() {
+                alert("Error saving favorite.");
+            }
+        });
+    });
+
+    // AJAX CRUD Delete
+    $(".remove-favorite-ajax").submit(function(e) {
+        e.preventDefault(); // TODO
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response["removed"]) {
+                    location.reload();
+                }
+            }
+        });
+    });
+  </script>
+{% endblock %}

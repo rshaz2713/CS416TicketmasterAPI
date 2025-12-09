@@ -1,0 +1,94 @@
+.dark-mode {
+
+  /* Global dark colors */
+  background-color: #121212 !important;
+  color: #ffffff !important;
+
+  #navbar {
+    background-color: #1f1f1f !important;
+
+    /* Lightens navbar links and text */
+    .nav-link,
+    .navbar-brand {
+      color: #e3e3e3 !important;
+    }
+
+    /* Bolds navbar active link */
+    .nav-link.active {
+      color: #ffffff !important;
+      font-weight: 600 !important;
+    }
+
+    /* Light border color for hamburger button */
+    .navbar-toggler {
+      border-color: #ddd;
+    }
+  }
+
+  /* Dark colors for cards and container */
+  .card,
+  .bg-white,
+  #query-root-container .bg-white {
+    background-color: #1c1c1c !important;
+    color: #fff !important;
+    border-color: #333 !important;
+  }
+
+  /* Search page banner */
+  .bg-dark {
+    background-color: #000 !important;
+  }
+
+  /* Handles grey text */
+  .text-muted {
+    color: #b0b0b0 !important;
+  }
+
+  .text-primary,
+  .text-primary-emphasis {
+    color: #82aaff !important;
+  }
+
+  .text-secondary,
+  .fw-normal {
+    color: #e0e0e0 !important;
+  }
+
+  /* Shows query input placeholder text */
+  input,
+  textarea {
+    background-color: #222 !important;
+    color: #fff !important;
+    border-color: #444 !important;
+
+    &::placeholder {
+      color: #bbbbbb !important;
+    }
+  }
+
+  .btn-outline-primary {
+    color: #9bbcff !important;
+    border-color: #9bbcff !important;
+  }
+
+  .btn-outline-danger {
+    color: #ff8a8a !important;
+    border-color: #ff8a8a !important;
+  }
+
+  .btn-outline-secondary {
+    color: #ccc !important;
+    border-color: #ccc !important;
+  }
+
+  /* Darkens alert dialog box to not strain eyes */
+  .alert {
+    box-shadow: none !important;
+
+    &.alert-danger {
+      background-color: #3a1f1f !important;
+      border-color: #6b2a2a !important;
+      color: #ffbdbd !important;
+    }
+  }
+}
